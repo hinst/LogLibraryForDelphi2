@@ -25,11 +25,18 @@ package LogLibrary4Delphi;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  Units4Delphi;
 
 contains
   CustomLogEntity in 'CustomLogEntity.pas',
   CustomLogManager in 'CustomLogManager.pas',
-  CustomLogMessage in 'CustomLogMessage.pas';
+  CustomLogMessage in 'CustomLogMessage.pas',
+  CustomLogWriter in 'CustomLogWriter.pas',
+  LogManager in 'LogManager.pas',
+  CustomLogWriterList in 'CustomLogWriterList.pas',
+  CustomLogMessageList in 'CustomLogMessageList.pas',
+  DefaultLogMessage in 'DefaultLogMessage.pas',
+  ConsoleLogWriter in 'ConsoleLogWriter.pas';
 
 end.

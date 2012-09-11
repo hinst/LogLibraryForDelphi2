@@ -3,7 +3,11 @@ program LLTestApplication;
 {$APPTYPE CONSOLE}
 
 uses
-  CustomLogEntity;
+  CustomLogEntity,
+  LogManager;
+
+var
+  LogManager: TLogManager;
 
 begin
 end.
