@@ -33,10 +33,12 @@ contains
   CustomLogManager in 'CustomLogManager.pas',
   CustomLogMessage in 'CustomLogMessage.pas',
   CustomLogWriter in 'CustomLogWriter.pas',
-  LogManager in 'LogManager.pas',
+  PlainLogManager in 'PlainLogManager.pas',
   CustomLogWriterList in 'CustomLogWriterList.pas',
   CustomLogMessageList in 'CustomLogMessageList.pas',
   DefaultLogMessage in 'DefaultLogMessage.pas',
-  ConsoleLogWriter in 'ConsoleLogWriter.pas';
+  ConsoleLogWriter in 'ConsoleLogWriter.pas',
+  DefaultLogEntity in 'DefaultLogEntity.pas',
+  EmptyLogEntity in 'EmptyLogEntity.pas';
 
 end.

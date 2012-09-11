@@ -22,7 +22,7 @@ var
 begin
   if not IsConsole then 
     exit;
-  text := '[' + aMessage.Tag + ']';
+  text := '[' + aMessage.Tag + '] ';
   text := text + aMessage.Name + ': ';
   text := text + aMessage.Text;
   WriteLN(text);

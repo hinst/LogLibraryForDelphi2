@@ -9,7 +9,7 @@ type
   TDefaultLogMessage = class(TCustomLogMessage)
   public
     constructor Create(const aNumber: integer);
-  private
+  protected
     fNumber: integer;
     fTag: string;
     fTime: TDateTime;

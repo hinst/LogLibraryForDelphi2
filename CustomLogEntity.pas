@@ -3,9 +3,10 @@ unit CustomLogEntity;
 interface
 
 type
-  TCustomLogEntity = class
+  TCustomLog = class
   public
-    procedure Write(const aText: string); virtual; abstract;
+    procedure Write(const aText: string); overload; virtual; abstract;
+    procedure Write(const aTag, aText: string); overload; virtual; abstract; 
   end;
 
 implementation
