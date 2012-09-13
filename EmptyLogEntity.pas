@@ -10,7 +10,6 @@ type
   public
     procedure Write(const aText: string); overload; override;
     procedure Write(const aTag, aText: string); overload; override;
-
   end; 
 
 implementation
