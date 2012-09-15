@@ -32,6 +32,7 @@ type
       // TLogManager owns writers.
       // It meas that it releases them on destruction
     function CreateMessage: TCustomLogMessage; override;
+      // Releases aMessage after execution
     procedure WriteMessage(const aMessage: TCustomLogMessage); override;
     procedure AddWriter(const aWriter: TCustomLogWriter); override;
     destructor Destroy; override;
@@ -53,6 +54,7 @@ var
 begin
   for i := 0 to Writers.Count - 1 do
     Writers[i].Write(aMessage);
+  aMessage.Free;
 end;
 
 procedure TPlainLogManager.WriteMessageThreadSafe(const aMessage: TCustomLogMessage);
@@ -80,6 +82,7 @@ end;
 
 destructor TPlainLogManager.Destroy;
 begin
+  FreeAndNil(fWriteMessageLock);
   FreeAndNil(fWriters);
   inherited Destroy;
 end;
