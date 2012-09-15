@@ -32,7 +32,7 @@ begin
   if FileExists(aLogFileName) then
     fLogFileStream := TFileStream.Create(aLogFileName, fmOpenReadWrite or fmShareDenyNone)
   else
-    fLogFileStream := TFileStream.Create(aLogFileName, fmCreate or fmShareDenyNone)
+    fLogFileStream := TFileStream.Create(aLogFileName, fmCreate or fmShareDenyNone);
   fLogFileStream.Position := fLogFileStream.Size;
 end;
 
