@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="LogLibrary4FPC"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)\"/>
+      </SearchPaths>
+      <Parsing>
+        <SyntaxOptions>
+          <SyntaxMode Value="delphi"/>
+        </SyntaxOptions>
+      </Parsing>
+      <Other>
+        <CompilerMessages>
+          <MsgFileName Value=""/>
+        </CompilerMessages>
+        <CompilerPath Value="$(CompPath)"/>
+      </Other>
+    </CompilerOptions>
+    <Files Count="12">
+      <Item1>
+        <Filename Value="ConsoleLogWriter.pas"/>
+        <UnitName Value="ConsoleLogWriter"/>
+      </Item1>
+      <Item2>
+        <Filename Value="CustomLogEntity.pas"/>
+        <UnitName Value="CustomLogEntity"/>
+      </Item2>
+      <Item3>
+        <Filename Value="CustomLogManager.pas"/>
+        <UnitName Value="CustomLogManager"/>
+      </Item3>
+      <Item4>
+        <Filename Value="CustomLogMessage.pas"/>
+        <UnitName Value="CustomLogMessage"/>
+      </Item4>
+      <Item5>
+        <Filename Value="CustomLogMessageList.pas"/>
+        <UnitName Value="CustomLogMessageList"/>
+      </Item5>
+      <Item6>
+        <Filename Value="CustomLogWriter.pas"/>
+        <UnitName Value="CustomLogWriter"/>
+      </Item6>
+      <Item7>
+        <Filename Value="CustomLogWriterList.pas"/>
+        <UnitName Value="CustomLogWriterList"/>
+      </Item7>
+      <Item8>
+        <Filename Value="DefaultLogEntity.pas"/>
+        <UnitName Value="DefaultLogEntity"/>
+      </Item8>
+      <Item9>
+        <Filename Value="DefaultLogMessage.pas"/>
+        <UnitName Value="DefaultLogMessage"/>
+      </Item9>
+      <Item10>
+        <Filename Value="EmptyLogEntity.pas"/>
+        <UnitName Value="EmptyLogEntity"/>
+      </Item10>
+      <Item11>
+        <Filename Value="PlainLogManager.pas"/>
+        <UnitName Value="PlainLogManager"/>
+      </Item11>
+      <Item12>
+        <Filename Value="PlainTextWriter.pas"/>
+        <UnitName Value="PlainTextWriter"/>
+      </Item12>
+    </Files>
+    <Type Value="RunAndDesignTime"/>
+    <RequiredPkgs Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

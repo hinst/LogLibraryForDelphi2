@@ -25,8 +25,7 @@ package LogLibrary4Delphi;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl,
-  Units4Delphi;
+  rtl;
 
 contains
   CustomLogEntity in 'CustomLogEntity.pas',
@@ -39,6 +38,7 @@ contains
   DefaultLogMessage in 'DefaultLogMessage.pas',
   ConsoleLogWriter in 'ConsoleLogWriter.pas',
   DefaultLogEntity in 'DefaultLogEntity.pas',
-  EmptyLogEntity in 'EmptyLogEntity.pas';
+  EmptyLogEntity in 'EmptyLogEntity.pas',
+  PlainTextWriter in 'PlainTextWriter.pas';
 
 end.
