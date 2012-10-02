@@ -39,6 +39,9 @@ contains
   DefaultLogMessage in 'DefaultLogMessage.pas',
   ConsoleLogWriter in 'ConsoleLogWriter.pas',
   DefaultLogEntity in 'DefaultLogEntity.pas',
-  EmptyLogEntity in 'EmptyLogEntity.pas';
+  EmptyLogEntity in 'EmptyLogEntity.pas',
+  VCLLogDisplayer in 'VCLLogDisplayer.pas',
+  VCLLogDisplayerWriter in 'VCLLogDisplayerWriter.pas',
+  VCLLogDisplayerAttachable in 'VCLLogDisplayerAttachable.pas';
 
 end.

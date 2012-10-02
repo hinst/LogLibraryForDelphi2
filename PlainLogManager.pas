@@ -35,6 +35,7 @@ type
       // Releases aMessage after execution
     procedure WriteMessage(const aMessage: TCustomLogMessage); override;
     procedure AddWriter(const aWriter: TCustomLogWriter); override;
+    function RemoveWriter(const aWriter: TCustomLogWriter): boolean; override;
     destructor Destroy; override;
   end;
 
@@ -73,6 +74,13 @@ end;
 procedure TPlainLogManager.AddWriter(const aWriter: TCustomLogWriter);
 begin
   Writers.Add(aWriter);
+end;
+
+function TPlainLogManager.RemoveWriter(const aWriter: TCustomLogWriter): boolean;
+begin
+  result := Writers.IndexOf(aWriter) >= 0;
+  if result then
+    Writers.Remove(aWriter);
 end;
 
 procedure TPlainLogManager.WriteMessage(const aMessage: TCustomLogMessage);
