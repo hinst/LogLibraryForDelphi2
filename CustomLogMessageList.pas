@@ -16,8 +16,6 @@ type
 
 implementation
 
-{ TCustomLogMessageList }
-
 function TCustomLogMessageList.GetItem(const aIndex: integer): TCustomLogMessage;
 begin
   result := inherited GetItem(aIndex) as TCustomLogMessage;

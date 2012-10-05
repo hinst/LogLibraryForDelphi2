@@ -3,10 +3,12 @@ unit CustomLogWriter;
 interface
 
 uses
+  Classes,
+  UEnhancedObject,
   CustomLogMessage;
 
 type
-  TCustomLogWriter = class
+  TCustomLogWriter = class(TEnhancedObject)
   public
     procedure Write(const aMessage: TCustomLogMessage); virtual; abstract;
   end;

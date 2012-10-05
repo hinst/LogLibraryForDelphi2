@@ -5,10 +5,11 @@ interface
 uses
   CustomLogMessage,
   CustomLogEntity,
+  EmptyLogEntity,
   CustomLogManager;
 
 type
-  TLog = class(TCustomLog)
+  TLog = class(TEmptyLog)
   public
     constructor Create(const aManager: TCustomLogManager; const aName: string);
   protected
@@ -19,6 +20,7 @@ type
     property Name: string read fName;
     procedure Write(const aText: string); overload; override;
     procedure Write(const aTag, aText: string); overload; override;
+    function CreateAnother(const aName: string = ''): TEmptyLog; override;
   end;
 
 implementation
@@ -45,6 +47,11 @@ begin
   m.Name := Name;
   m.Text := aText;
   Manager.WriteMessage(m);
+end;
+
+function TLog.CreateAnother(const aName: string): TEmptyLog;
+begin
+  result := TLog.Create(Manager, Name);
 end;
 
 end.

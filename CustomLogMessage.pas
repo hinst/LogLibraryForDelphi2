@@ -2,8 +2,11 @@ unit CustomLogMessage;
 
 interface
 
+uses
+  UEnhancedObject;
+
 type
-  TCustomLogMessage = class
+  TCustomLogMessage = class(TEnhancedObject)
   protected
     function GetNumber: integer; virtual; abstract;
     procedure SetNumber(const aNumber: integer); virtual; abstract;

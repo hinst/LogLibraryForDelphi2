@@ -40,8 +40,9 @@ contains
   ConsoleLogWriter in 'ConsoleLogWriter.pas',
   DefaultLogEntity in 'DefaultLogEntity.pas',
   EmptyLogEntity in 'EmptyLogEntity.pas',
-  VCLLogDisplayer in 'VCLLogDisplayer.pas',
-  VCLLogDisplayerWriter in 'VCLLogDisplayerWriter.pas',
-  VCLLogDisplayerAttachable in 'VCLLogDisplayerAttachable.pas';
+  CustomVCLLogPanel in 'CustomVCLLogPanel.pas',
+  VCLLogPanelWriter in 'VCLLogPanelWriter.pas',
+  CustomVCLLogPanelAttachable in 'CustomVCLLogPanelAttachable.pas',
+  VCLLogPanel in 'VCLLogPanel.pas';
 
 end.

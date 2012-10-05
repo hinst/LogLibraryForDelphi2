@@ -9,6 +9,8 @@ uses
 
   CustomLogMessage,
   CustomLogMessageList,
+  CustomLogEntity,
+  DefaultLogEntity,
   DefaultLogMessage,
   CustomLogManager,
   CustomLogWriter,
@@ -20,12 +22,14 @@ type
   public
     constructor Create;
   protected
+    fLog: TCustomLog;
     fMessageNumber: integer;
     fWriters: TCustomLogWriterList;
     fWriteMessageLock: TCriticalSection;
     procedure WriteMessageInternal(const aMessage: TCustomLogMessage);
     procedure WriteMessageThreadSafe(const aMessage: TCustomLogMessage);
   public
+    property Log: TCustomLog read fLog;
     property MessageNumber: integer read fMessageNumber;
     property Writers: TCustomLogWriterList read fWriters;
     property WriteMessageLock: TCriticalSection read fWriteMessageLock;
@@ -36,14 +40,18 @@ type
     procedure WriteMessage(const aMessage: TCustomLogMessage); override;
     procedure AddWriter(const aWriter: TCustomLogWriter); override;
     function RemoveWriter(const aWriter: TCustomLogWriter): boolean; override;
+    function WriterListToText: string;
+    procedure WriteWriterList;
     destructor Destroy; override;
   end;
+  
 
 implementation
 
 constructor TPlainLogManager.Create;
 begin
   inherited Create;
+  fLog := TLog.Create(self, 'LogManager');
   fMessageNumber := 0;
   fWriters := TCustomLogWriterList.Create(true);
   fWriteMessageLock := TCriticalSection.Create;
@@ -53,9 +61,11 @@ procedure TPlainLogManager.WriteMessageInternal(const aMessage: TCustomLogMessag
 var
   i: integer;
 begin
+  inc(fMessageNumber);
+  aMessage.Number := MessageNumber;
   for i := 0 to Writers.Count - 1 do
     Writers[i].Write(aMessage);
-  aMessage.Free;
+  aMessage.Dereference;
 end;
 
 procedure TPlainLogManager.WriteMessageThreadSafe(const aMessage: TCustomLogMessage);
@@ -77,10 +87,11 @@ begin
 end;
 
 function TPlainLogManager.RemoveWriter(const aWriter: TCustomLogWriter): boolean;
+var
+  resultIndex: integer;
 begin
-  result := Writers.IndexOf(aWriter) >= 0;
-  if result then
-    Writers.Remove(aWriter);
+  resultIndex := Writers.Remove(aWriter);
+  result := resultIndex >= 0;
 end;
 
 procedure TPlainLogManager.WriteMessage(const aMessage: TCustomLogMessage);
@@ -88,10 +99,26 @@ begin
   WriteMessageThreadSafe(aMessage);
 end;
 
+function TPlainLogManager.WriterListToText: string;
+var
+  i: integer;
+begin
+  result := 'Writers: ';
+  result := result + '(' + IntToStr(Writers.Count) + ')';
+  for i := 0 to Writers.Count - 1 do
+    result := result + sLineBreak + Writers[i].ClassName;
+end;
+
+procedure TPlainLogManager.WriteWriterList;
+begin
+  Log.Write(WriterListToText);
+end;
+
 destructor TPlainLogManager.Destroy;
 begin
   FreeAndNil(fWriteMessageLock);
   FreeAndNil(fWriters);
+  FreeAndNil(fLog);
   inherited Destroy;
 end;
 
