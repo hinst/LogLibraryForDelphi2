@@ -4,11 +4,10 @@ interface
 
 uses
   Classes,
-  UEnhancedObject,
   CustomLogMessage;
 
 type
-  TCustomLogWriter = class(TEnhancedObject)
+  TCustomLogWriter = class
   public
     procedure Write(const aMessage: TCustomLogMessage); virtual; abstract;
   end;

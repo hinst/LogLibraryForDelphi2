@@ -42,8 +42,6 @@
     <DelphiCompile Include="LogLibrary4Delphi.dpk">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="..\MMCSE\rtl.dcp" />
-    <DCCReference Include="..\MMCSE\Units4Delphi.dcp" />
     <DCCReference Include="ConsoleLogWriter.pas" />
     <DCCReference Include="CustomLogEntity.pas" />
     <DCCReference Include="CustomLogManager.pas" />
@@ -57,7 +55,10 @@
     <DCCReference Include="DefaultLogMessage.pas" />
     <DCCReference Include="EmptyLogEntity.pas" />
     <DCCReference Include="PlainLogManager.pas" />
+    <DCCReference Include="rtl.dcp" />
+    <DCCReference Include="Units4Delphi.dcp" />
     <DCCReference Include="VCLLogPanel.pas" />
+    <DCCReference Include="VCLLogPanelItem.pas" />
     <DCCReference Include="VCLLogPanelWriter.pas" />
   </ItemGroup>
 </Project>

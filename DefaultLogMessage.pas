@@ -35,7 +35,7 @@ constructor TDefaultLogMessage.Create(const aNumber: integer);
 begin
   inherited Create;
   Number := aNumber;
-  Tag := ' ';
+  Tag := '';
 end;
 
 destructor TDefaultLogMessage.Destroy;

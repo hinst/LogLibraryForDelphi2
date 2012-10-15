@@ -7,6 +7,8 @@ uses
   Contnrs,
   SyncObjs,
 
+  UEnhancedObject,
+
   CustomLogMessage,
   CustomLogMessageList,
   CustomLogEntity,
@@ -96,6 +98,7 @@ end;
 
 procedure TPlainLogManager.WriteMessage(const aMessage: TCustomLogMessage);
 begin
+  aMessage.Refererence;
   WriteMessageThreadSafe(aMessage);
 end;
 

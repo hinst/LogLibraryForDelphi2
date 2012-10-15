@@ -11,7 +11,7 @@ type
   protected
     function GetItem(const aIndex: integer): TCustomLogMessage;
   public
-    property Items[const i: integer]: TCustomLogMessage read GetItem;
+    property Items[const i: integer]: TCustomLogMessage read GetItem; default;
   end;
 
 implementation

@@ -85,7 +85,6 @@ end;
 
 destructor TCustomLogViewPanel.Destroy;
 begin
-  Log.Write('Destroy...');
   DestroyThis;
   inherited Destroy;
 end;

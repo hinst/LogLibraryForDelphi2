@@ -9,6 +9,9 @@ uses
   SyncObjs,
   Controls,
 
+  UAdditionalTypes,
+  UAdditionalExceptions,
+
   CustomLogMessage,
   EmptyLogEntity,
   CustomLogWriter;
