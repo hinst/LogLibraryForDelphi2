@@ -25,7 +25,7 @@ type
     fLock: TCriticalSection;
     procedure SetLog(const aLog: TEmptyLog);
     procedure CreateThis;
-    procedure AddMessageThreadSafe(const aMessage: TCustomLogMessage);
+    procedure AddMessageSynchronized(const aMessage: TCustomLogMessage);
     procedure AddMessageInternal(const aMessage: TCustomLogMessage); virtual; abstract;
     procedure DestroyThis;
   public
@@ -62,7 +62,7 @@ begin
   fLock := TCriticalSection.Create;
 end;
 
-procedure TCustomLogViewPanel.AddMessageThreadSafe(const aMessage: TCustomLogMessage);
+procedure TCustomLogViewPanel.AddMessageSynchronized(const aMessage: TCustomLogMessage);
 var
   am: TAddMessage;
 begin
@@ -77,7 +77,7 @@ end;
 
 procedure TCustomLogViewPanel.AddMessage(const aMessage: TCustomLogMessage);
 begin
-  AddMessageThreadSafe(aMessage);
+  AddMessageSynchronized(aMessage);
 end;
 
 procedure TAddMessage.Execute;
