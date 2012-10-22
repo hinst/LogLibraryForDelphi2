@@ -15,6 +15,7 @@ uses
   StdCtrls,
 
   UEnhancedObject,
+  UCustomThread,
 
   CustomLogMessage;
 
@@ -22,6 +23,20 @@ type
   TLogPanelItem = class
   public
     constructor Create(const aOwner: TComponent; const aMessage: TCustomLogMessage); reintroduce;
+  public const
+    NOHEIGHT = -1;
+  public type
+    TRecalculateHeight = class
+    public
+      Item: TLogPanelItem;
+      Canvas: TCanvas;
+      procedure Perform; overload;
+      class procedure Perform(
+        const aItem: TLogPanelItem;
+        const aCanvas: TCanvas;
+        const aThread: TCustomThread
+      ); overload;
+    end;
   protected
     fLogMessage: TCustomLogMessage;
     fTagHeight: integer;
@@ -45,7 +60,8 @@ type
     property Gap: integer read fGap write fGap;
     property InnerTextGap: integer read fInnerTextGap write fInnerTextGap;
     property BorderColor: TColor read fBorderColor write fBorderColor;
-    procedure RecalculateHeight(const aCanvas: TCanvas);
+    procedure DirectRecalculateHeight(const aCanvas: TCanvas);
+    procedure SynchronizedRecalculateHeight(const aCanvas: TCanvas; const aThread: TCustomThread);
     procedure Paint(const aCanvas: TCanvas; const aTop: integer);
     destructor Destroy; override;
   end;
@@ -75,6 +91,7 @@ end;
 
 procedure TLogPanelItem.AssignDefaults;
 begin
+  fHeight := NOHEIGHT;
   Gap := 3;
   BorderColor := clGray;
   InnerTextGap := 3;
@@ -104,7 +121,7 @@ begin
   DereferenceAndNil(fLogMessage);
 end;
 
-procedure TLogPanelItem.RecalculateHeight(const aCanvas: TCanvas);
+procedure TLogPanelItem.DirectRecalculateHeight(const aCanvas: TCanvas);
 begin
   fHeight := 0;
   if LogMessage.Tag <> '' then
@@ -117,6 +134,12 @@ begin
 
   fHeight := Height + InnerTextGap;
   //WriteLN('Height recalculated: ' + IntToStr(Height));
+end;
+
+procedure TLogPanelItem.SynchronizedRecalculateHeight(const aCanvas: TCanvas;
+  const aThread: TCustomThread);
+begin
+  TRecalculateHeight.Perform(self, aCanvas, aThread);
 end;
 
 procedure TLogPanelItem.Paint(const aCanvas: TCanvas; const aTop: integer);
@@ -179,5 +202,24 @@ function TLogPanelItemList.GetItem(const aIndex: integer): TLogPanelItem;
 begin
   result := inherited GetItem(aIndex) as TLogPanelItem;
 end;
+
+procedure TLogPanelItem.TRecalculateHeight.Perform;
+begin
+  item.DirectRecalculateHeight(Canvas);
+end;
+
+class procedure TLogPanelItem.TRecalculateHeight.Perform(const aItem: TLogPanelItem;
+  const aCanvas: TCanvas; const aThread: TCustomThread);
+var
+  me: TRecalculateHeight;
+begin
+  me := TRecalculateHeight.Create;
+  me.Item := aItem;
+  me.Canvas := aCanvas;
+  aThread.Synchronize(me.Perform);
+  me.Free;
+end;
+
+
 
 end.

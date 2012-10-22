@@ -54,9 +54,12 @@ procedure TCustomLogViewPanel.DestroyThis;
 var
   detached: boolean;
 begin
-  detached := Detach;
-  if not detached then
-    FreeAndNil(fWriter);
+  if Writer <> nil then
+  begin
+    detached := Detach;
+    if not detached then
+      FreeAndNil(fWriter);
+  end;
 end;
 
 procedure TCustomLogViewPanel.AttachTo(const aLogManager: TCustomLogManager);
@@ -71,16 +74,15 @@ function TCustomLogViewPanel.DetachFrom(const aLogManager: TCustomLogManager): b
 begin
   AssertAssigned(aLogManager, 'aLogManager', TVariableType.Argument);
   result := aLogManager.RemoveWriter(Writer);
+  if result then
+    fWriter := nil;
 end;
 
 function TCustomLogViewPanel.Detach: boolean;
 begin
   result := LogManager <> nil;
   if result then
-  begin
     result := DetachFrom(LogManager);
-    fLogManager := nil;
-  end;
 end;
 
 destructor TCustomLogViewPanel.Destroy;

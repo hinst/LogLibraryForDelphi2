@@ -25,25 +25,15 @@ type
     fLock: TCriticalSection;
     procedure SetLog(const aLog: TEmptyLog);
     procedure CreateThis;
-    procedure AddMessageSynchronized(const aMessage: TCustomLogMessage);
-    procedure AddMessageInternal(const aMessage: TCustomLogMessage); virtual; abstract;
     procedure DestroyThis;
   public
     property Log: TEmptyLog read fLog write SetLog;
     property Lock: TCriticalSection read fLock;
-    procedure AddMessage(const aMessage: TCustomLogMessage);
+    procedure AddMessage(const aMessage: TCustomLogMessage); virtual; abstract;
     destructor Destroy; override;
   end;
 
 implementation
-
-type
-  TAddMessage = class(TObject)
-  public
-    aMsg: TCustomLogMessage;
-    aOwner: TCustomLogViewPanel;
-    procedure Execute;
-  end;
 
 constructor TCustomLogViewPanel.Create(aOwner: TComponent);
 begin
@@ -60,29 +50,6 @@ procedure TCustomLogViewPanel.CreateThis;
 begin
   Log := TEmptyLog.Create;
   fLock := TCriticalSection.Create;
-end;
-
-procedure TCustomLogViewPanel.AddMessageSynchronized(const aMessage: TCustomLogMessage);
-var
-  am: TAddMessage;
-begin
-  am := TAddMessage.Create;
-  am.aMsg := aMessage;
-  am.aOwner := self;
-  Lock.Enter;
-  TThread.Synchronize(nil, am.Execute);
-  Lock.Leave;
-  am.Free;
-end;
-
-procedure TCustomLogViewPanel.AddMessage(const aMessage: TCustomLogMessage);
-begin
-  AddMessageSynchronized(aMessage);
-end;
-
-procedure TAddMessage.Execute;
-begin
-  aOwner.AddMessageInternal(aMsg);
 end;
 
 procedure TCustomLogViewPanel.DestroyThis;
