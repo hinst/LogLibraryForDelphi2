@@ -10,6 +10,7 @@ uses
 
   Graphics,
   Controls,
+  ExtCtrls,
 
   UAdditionalTypes,
   UAdditionalExceptions,
@@ -27,7 +28,7 @@ type
   public
     constructor Create(aOwner: TComponent); override;
   private
-    const DefaultUpdateInterval = 200;
+    const DefaultUpdateInterval = 60;
     const DefaultScrollSpeed = 300; //< pixels per second
   protected
     fLogMessages: TLogPanelItemList;
@@ -36,8 +37,7 @@ type
     fScrollSpeed: integer;
     fGap: integer;
     fLastMouseY: integer;
-    fUpdateThread: TCustomThread;
-    fUpdateInterval: integer;
+    fUpdateTimer: TTimer;
     fNewMessageArrived: boolean;
     fTotalHeight: int64;
     procedure SetDesiredScrollTop(const aDesiredScrollTop: single);
@@ -49,9 +49,10 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure ScrollThis(const aDeltaY: integer);
-    procedure RecalculateHeights;
+    procedure DirectRecalculateHeights;
+    procedure NewMessageUpdate;
     procedure ReleaseLogMessages;
-    procedure UpdateRoutine(const aThread: TCustomThread);
+    procedure UpdateRoutine(aSender: TObject);
     procedure DestroyThis;
   public
     property LogMessages: TLogPanelItemList read fLogMessages;
@@ -60,8 +61,7 @@ type
     property ScrollSpeed: integer read fScrollSpeed;
     property Gap: integer read fGap write fGap;
     property LastMouseY: integer read fLastMouseY;
-    property UpdateThread: TCustomThread read fUpdateThread;
-    property UpdateInterval: integer read fUpdateInterval write fUpdateInterval;
+    property UpdateTimer: TTimer read fUpdateTimer;
     property NewMessageArrived: boolean read fNewMessageArrived;
     property TotalHeight: int64 read fTotalHeight;
     procedure AddMessage(const aMessage: TCustomLogMessage); override;
@@ -87,21 +87,21 @@ end;
 
 procedure TLogViewPanel.CreateThis;
 begin
-  fLogMessages := TLogPanelItemList.Create(true);
-  AssignDefaults;
-  fUpdateThread := TCustomThread.Create;
-  UpdateThread.OnExecute := UpdateRoutine;
-  UpdateThread.Resume;
-end;
-
-procedure TLogViewPanel.AssignDefaults;
-begin
   DoubleBuffered := true;
+
+  fLogMessages := TLogPanelItemList.Create(true);
   fScrollTop := 0;
   DesiredScrollTop := 0;
   fScrollSpeed := DefaultScrollSpeed;
   Gap := 3;
-  UpdateInterval := DefaultUpdateInterval;
+  fUpdateTimer := TTimer.Create(self);
+  UpdateTimer.Interval := DefaultUpdateInterval;
+  UpdateTimer.OnTimer := UpdateRoutine;
+  UpdateTimer.Enabled := true;
+end;
+
+procedure TLogViewPanel.AssignDefaults;
+begin
   fTotalHeight := 0;
 end;
 
@@ -116,16 +116,13 @@ begin
   AssertAssigned(LogMessages, 'LogMessages', TVariableType.Prop);
   UnlockPointer(LogMessages);
   {$ENDREGION}
-  {$REGION Prepare}
+  {$REGION Create Item}
   item := TLogPanelItem.Create(self, aMessage);
   item.Parent := self;
   {$ENDREGION}
   LockPointer(LogMessages);
-  WriteLN('TLVP: Message arrived: "' + aMessage.Text + '" ' + IntToStr(LogMessages.Count));
   LogMessages.Add(item);
-  fTotalHeight := fTotalHeight + item.Height + Gap;
   fNewMessageArrived := true;
-  ScrollToBottom;
   UnlockPointer(LogMessages);
 end;
 
@@ -156,25 +153,31 @@ var
 begin
   LockPointer(LogMessages);
   ActualY := Gap;
-  WriteLN(LogMessages.Count);
   for i := 0 to LogMessages.Count - 1 do
   begin
     item := LogMessages[i];
-    if item.Height = -1 then
+    if item.Height = item.NOHEIGHT then
+    begin
       item.DirectRecalculateHeight(Canvas);
+      fTotalHeight := fTotalHeight + item.Height + Gap;
+    end;
     AssertAssigned(item, 'item', TVariableType.Local);
     DrawY := ActualY - round(ScrollTop);
     if (0 < DrawY + item.Height) and (DrawY < ClientHeight) then
       item.Paint(Canvas, DrawY);
     ActualY := ActualY + item.Height + Gap;
   end;
+  if NewMessageArrived then
+    ScrollToBottom;
   UnlockPointer(LogMessages);
 end;
 
 procedure TLogViewPanel.Resize;
 begin
   inherited Resize;
-  RecalculateHeights;
+  if DesiredScrollTop <> ScrollTop then
+    DesiredScrollTop := ScrollTop; // no time to wait for this
+  DirectRecalculateHeights;
 end;
 
 procedure TLogViewPanel.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -193,6 +196,12 @@ begin
   end;
 end;
 
+procedure TLogViewPanel.NewMessageUpdate;
+begin
+  DirectRecalculateHeights;
+  ScrollToBottom;
+end;
+
 procedure TLogViewPanel.ScrollThis(const aDeltaY: integer);
 begin
   fScrollTop := ScrollTop + aDeltaY;
@@ -202,13 +211,13 @@ begin
   Invalidate;
 end;
 
-procedure TLogViewPanel.RecalculateHeights;
+procedure TLogViewPanel.DirectRecalculateHeights;
 var
   i: integer;
   item: TLogPanelItem;
 begin
   LockPointer(LogMessages);
-  fTotalHeight := 0;
+  fTotalHeight := Gap;
   for i := 0 to LogMessages.Count - 1 do
   begin
     item := LogMessages[i];
@@ -218,32 +227,34 @@ begin
   UnlockPointer(LogMessages);
 end;
 
-procedure TLogViewPanel.UpdateRoutine(const aThread: TCustomThread);
+procedure TLogViewPanel.UpdateRoutine(aSender: TObject);
+var
+  invalidationRequired: boolean;
+  scrollDPA: boolean; // scroll destination position approached
 begin
-  while not aThread.Stop do
-  begin
-    LockPointer(LogMessages);
-    ApproachSingle(fScrollTop, DesiredScrollTop, ScrollSpeed / 1000 * UpdateInterval);
-    UnlockPointer(LogMessages);
-    if NewMessageArrived then
-    begin
-      aThread.Synchronize(Invalidate);
-      fNewMessageArrived := false;
-    end;
-    Sleep(UpdateInterval);
-  end;
+  LockPointer(LogMessages); // LOCK
+  if NewMessageArrived then
+    NewMessageUpdate;
+  scrollDPA :=
+    ApproachSingle(fScrollTop, DesiredScrollTop, ScrollSpeed / 1000 * UpdateTimer.Interval);
+  {
+  if not scrollDPA then
+    WriteLN(FormatFloat('0.0', ScrollTop) + ' -> ' + FormatFloat('0.0', DesiredScrollTop));
+  }
+  invalidationRequired := not scrollDPA or NewMessageArrived;
+  if NewMessageArrived then
+    fNewMessageArrived := false;
+  UnlockPointer(LogMessages); //UNLOCK
+  if invalidationRequired then
+    Invalidate;
+  UpdateTimer.Interval := UpdateTimer.Interval; // reset timer hack
 end;
 
 procedure TLogViewPanel.DestroyThis;
 begin
   Detach;
-  if UpdateThread <> nil then
-  begin
-    UpdateThread.Stop := true;
-    UpdateThread.WaitFor;
-    UpdateThread.Free;
-    fUpdateThread := nil;
-  end;
+  UpdateTimer.Enabled := false;
+  FreeAndNil(fUpdateTimer);
   ReleaseLogMessages;
 end;
 

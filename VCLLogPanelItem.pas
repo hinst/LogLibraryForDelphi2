@@ -14,6 +14,8 @@ uses
   ExtCtrls,
   StdCtrls,
 
+  UAdditionalTypes,
+  UAdditionalExceptions,
   UEnhancedObject,
   UCustomThread,
 
@@ -39,6 +41,8 @@ type
     end;
   protected
     fLogMessage: TCustomLogMessage;
+    fTime: string;
+    fTimeHeight: integer;
     fTagHeight: integer;
     fTextHeight: integer;
     fHeight: integer;
@@ -46,12 +50,16 @@ type
     fGap: integer;
     fInnerTextGap: integer;
     fBorderColor: TColor;
+    function GetTime: string; inline;
+    function GetDefaultTimeFormat: string;
     procedure CreateThis;
     procedure AssignDefaults;
     function CalculateTextHeight(const aCanvas: TCanvas; const aText: string): integer;
     procedure DestroyThis;
   public
     property LogMessage: TCustomLogMessage read fLogMessage;
+    property Time: string read GetTime;
+    property TimeHeight: integer read fTimeHeight;
     property TagHeight: integer read fTagHeight;
     property TextHeight: integer read fTextHeight;
     property Height: integer read fHeight;
@@ -124,16 +132,37 @@ end;
 procedure TLogPanelItem.DirectRecalculateHeight(const aCanvas: TCanvas);
 begin
   fHeight := 0;
+  {$REGION Time}
+  fTimeHeight := CalculateTextHeight(aCanvas, Time);
+  fHeight := fHeight + InnerTextGap + fTimeHeight;
+  {$ENDREGION}
+  {$REGION Tag}
   if LogMessage.Tag <> '' then
   begin
     fTagHeight := CalculateTextHeight(aCanvas, LogMessage.Tag);
     fHeight := Height + InnerTextGap + TagHeight;
   end;
+  {$ENDREGION}
+  {$REGION Text}
   fTextHeight := CalculateTextHeight(aCanvas, LogMessage.Text);
   fHeight := Height + InnerTextGap + TextHeight;
+  {$ENDREGION}
 
   fHeight := Height + InnerTextGap;
   //WriteLN('Height recalculated: ' + IntToStr(Height));
+end;
+
+function TLogPanelItem.GetDefaultTimeFormat: string;
+begin
+  result := 'yyyy.m.d hh:mm:ss.zz';
+end;
+
+function TLogPanelItem.GetTime: string;
+begin
+  AssertAssigned(LogMessage, 'LogMessage', TVariableType.Prop);
+  if fTime = '' then
+    DateTimeToString(fTime, GetDefaultTimeFormat, LogMessage.Time);
+  result := fTime;
 end;
 
 procedure TLogPanelItem.SynchronizedRecalculateHeight(const aCanvas: TCanvas;
@@ -182,6 +211,8 @@ begin
   );
 
   currentOffset := 0;
+  aCanvas.Font.Color := clGreen;
+  NextDraw(Time, TimeHeight);
   if LogMessage.Tag <> '' then
   begin
     aCanvas.Font.Color := clBlue;
