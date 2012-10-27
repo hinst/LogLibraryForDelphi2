@@ -28,8 +28,10 @@ type
   public
     constructor Create(aOwner: TComponent); override;
   private
-    const DefaultUpdateInterval = 60;
+    const DefaultUpdateInterval = 30;
     const DefaultScrollSpeed = 300; //< pixels per second
+    const DefaultGap = 3; // pixels
+    const DefaultUserScrollSpeed = 30;
   protected
     fLogMessages: TLogPanelItemList;
     fScrollTop: single;
@@ -40,9 +42,9 @@ type
     fUpdateTimer: TTimer;
     fNewMessageArrived: boolean;
     fTotalHeight: int64;
+    fAutoScroll: boolean;
     procedure SetDesiredScrollTop(const aDesiredScrollTop: single);
     procedure CreateThis;
-    procedure AssignDefaults;
     procedure Paint; override;
     procedure PaintMessages;
     procedure Resize; override;
@@ -66,6 +68,7 @@ type
     property TotalHeight: int64 read fTotalHeight;
     procedure AddMessage(const aMessage: TCustomLogMessage); override;
     procedure ScrollToBottom;
+    procedure UserScroll(const aDelta: integer);
     destructor Destroy; override;
   end;
 
@@ -93,16 +96,14 @@ begin
   fScrollTop := 0;
   DesiredScrollTop := 0;
   fScrollSpeed := DefaultScrollSpeed;
-  Gap := 3;
+  Gap := DefaultGap;
+  fTotalHeight := 0;
+  fAutoScroll := true; // default
+  
   fUpdateTimer := TTimer.Create(self);
   UpdateTimer.Interval := DefaultUpdateInterval;
   UpdateTimer.OnTimer := UpdateRoutine;
   UpdateTimer.Enabled := true;
-end;
-
-procedure TLogViewPanel.AssignDefaults;
-begin
-  fTotalHeight := 0;
 end;
 
 procedure TLogViewPanel.AddMessage(const aMessage: TCustomLogMessage);
@@ -236,7 +237,11 @@ begin
   if NewMessageArrived then
     NewMessageUpdate;
   scrollDPA :=
-    ApproachSingle(fScrollTop, DesiredScrollTop, ScrollSpeed / 1000 * UpdateTimer.Interval);
+    ApproachSingle(
+      fScrollTop,
+      DesiredScrollTop,
+      ScrollSpeed / 1000 * UpdateTimer.Interval
+        * Exp(Abs(ScrollTop - DesiredScrollTop)/ScrollSpeed));
   {
   if not scrollDPA then
     WriteLN(FormatFloat('0.0', ScrollTop) + ' -> ' + FormatFloat('0.0', DesiredScrollTop));
@@ -261,6 +266,11 @@ end;
 procedure TLogViewPanel.ScrollToBottom;
 begin
   DesiredScrollTop := TotalHeight - ClientHeight - 1;
+end;
+
+procedure TLogViewPanel.UserScroll(const aDelta: integer);
+begin
+  DesiredScrollTop := DesiredScrollTop - aDelta;
 end;
 
 destructor TLogViewPanel.Destroy;

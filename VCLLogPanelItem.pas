@@ -43,7 +43,7 @@ type
     fLogMessage: TCustomLogMessage;
     fTime: string;
     fTimeHeight: integer;
-    fTagHeight: integer;
+    fCaptionHeight: integer;
     fTextHeight: integer;
     fHeight: integer;
     fParent: TPanel;
@@ -52,15 +52,17 @@ type
     fBorderColor: TColor;
     function GetTime: string; inline;
     function GetDefaultTimeFormat: string;
+    function GetCaptionText: string;
     procedure CreateThis;
     procedure AssignDefaults;
     function CalculateTextHeight(const aCanvas: TCanvas; const aText: string): integer;
     procedure DestroyThis;
   public
     property LogMessage: TCustomLogMessage read fLogMessage;
+    property CaptionText: string read GetCaptionText;
     property Time: string read GetTime;
     property TimeHeight: integer read fTimeHeight;
-    property TagHeight: integer read fTagHeight;
+    property CaptionHeight: integer read fCaptionHeight;
     property TextHeight: integer read fTextHeight;
     property Height: integer read fHeight;
       // external assign required
@@ -93,7 +95,7 @@ end;
 
 procedure TLogPanelItem.CreateThis;
 begin
-  LogMessage.Refererence;
+  LogMessage.Reference;
   AssignDefaults;
 end;
 
@@ -137,11 +139,8 @@ begin
   fHeight := fHeight + InnerTextGap + fTimeHeight;
   {$ENDREGION}
   {$REGION Tag}
-  if LogMessage.Tag <> '' then
-  begin
-    fTagHeight := CalculateTextHeight(aCanvas, LogMessage.Tag);
-    fHeight := Height + InnerTextGap + TagHeight;
-  end;
+  fCaptionHeight := CalculateTextHeight(aCanvas, LogMessage.Name + ': ' + LogMessage.Tag);
+  fHeight := Height + InnerTextGap + CaptionHeight;
   {$ENDREGION}
   {$REGION Text}
   fTextHeight := CalculateTextHeight(aCanvas, LogMessage.Text);
@@ -150,6 +149,11 @@ begin
 
   fHeight := Height + InnerTextGap;
   //WriteLN('Height recalculated: ' + IntToStr(Height));
+end;
+
+function TLogPanelItem.GetCaptionText: string;
+begin
+  result := LogMessage.Name + ': ' + LogMessage.Tag;
 end;
 
 function TLogPanelItem.GetDefaultTimeFormat: string;
@@ -213,11 +217,8 @@ begin
   currentOffset := 0;
   aCanvas.Font.Color := clGreen;
   NextDraw(Time, TimeHeight);
-  if LogMessage.Tag <> '' then
-  begin
-    aCanvas.Font.Color := clBlue;
-    NextDraw(LogMessage.Tag, TagHeight);
-  end;
+  aCanvas.Font.Color := clBlue;
+  NextDraw(CaptionText, CaptionHeight);
   aCanvas.Font.Color := clBlack;
   NextDraw(LogMessage.Text, TextHeight);
 end;

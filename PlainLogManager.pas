@@ -98,7 +98,7 @@ end;
 
 procedure TPlainLogManager.WriteMessage(const aMessage: TCustomLogMessage);
 begin
-  aMessage.Refererence;
+  aMessage.Reference;
   WriteMessageThreadSafe(aMessage);
 end;
 
