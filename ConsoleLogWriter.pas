@@ -27,10 +27,7 @@ implementation
 procedure TConsoleLogWriter.SetFormat(const aFormat: TCustomLogTextFormat);
 begin
   if aFormat = nil then
-  begin
-    WriteLN('Dereferenced');
     Format.Dereference
-  end
   else
     aFormat.Reference;
   FFormat := aFormat; 

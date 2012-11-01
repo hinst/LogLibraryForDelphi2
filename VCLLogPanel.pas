@@ -66,6 +66,7 @@ type
     property UpdateTimer: TTimer read fUpdateTimer;
     property NewMessageArrived: boolean read fNewMessageArrived;
     property TotalHeight: int64 read fTotalHeight;
+    property AutoScroll: boolean read fAutoScroll write fAutoScroll;
     procedure AddMessage(const aMessage: TCustomLogMessage); override;
     procedure ScrollToBottom;
     procedure UserScroll(const aDelta: integer);
@@ -168,8 +169,6 @@ begin
       item.Paint(Canvas, DrawY);
     ActualY := ActualY + item.Height + Gap;
   end;
-  if NewMessageArrived then
-    ScrollToBottom;
   UnlockPointer(LogMessages);
 end;
 
@@ -199,8 +198,8 @@ end;
 
 procedure TLogViewPanel.NewMessageUpdate;
 begin
-  DirectRecalculateHeights;
-  ScrollToBottom;
+  if AutoScroll then
+    ScrollToBottom;
 end;
 
 procedure TLogViewPanel.ScrollThis(const aDeltaY: integer);
