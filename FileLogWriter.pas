@@ -36,7 +36,7 @@ type
     procedure Write(const aMessage: TCustomLogMessage); override;
     destructor Destroy; override;
   end;
-  
+
 
 implementation
 

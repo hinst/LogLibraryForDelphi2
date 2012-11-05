@@ -8,7 +8,7 @@ uses
 type
   TDefaultLogMessage = class(TCustomLogMessage)
   public
-    constructor Create(const aNumber: integer);
+    constructor Create(const aNumber: integer); reintroduce;
   protected
     fNumber: integer;
     fTag: string;

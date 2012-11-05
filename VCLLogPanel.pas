@@ -40,7 +40,6 @@ type
     fGap: integer;
     fLastMouseY: integer;
     fUpdateTimer: TTimer;
-    fNewMessageArrived: boolean;
     fTotalHeight: int64;
     fAutoScroll: boolean;
     procedure SetDesiredScrollTop(const aDesiredScrollTop: single);
@@ -52,7 +51,6 @@ type
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure ScrollThis(const aDeltaY: integer);
     procedure DirectRecalculateHeights;
-    procedure NewMessageUpdate;
     procedure ReleaseLogMessages;
     procedure UpdateRoutine(aSender: TObject);
     procedure DestroyThis;
@@ -64,7 +62,6 @@ type
     property Gap: integer read fGap write fGap;
     property LastMouseY: integer read fLastMouseY;
     property UpdateTimer: TTimer read fUpdateTimer;
-    property NewMessageArrived: boolean read fNewMessageArrived;
     property TotalHeight: int64 read fTotalHeight;
     property AutoScroll: boolean read fAutoScroll write fAutoScroll;
     procedure AddMessage(const aMessage: TCustomLogMessage); override;
@@ -124,7 +121,7 @@ begin
   {$ENDREGION}
   LockPointer(LogMessages);
   LogMessages.Add(item);
-  fNewMessageArrived := true;
+  ScrollToBottom;
   UnlockPointer(LogMessages);
 end;
 
@@ -196,12 +193,6 @@ begin
   end;
 end;
 
-procedure TLogViewPanel.NewMessageUpdate;
-begin
-  if AutoScroll then
-    ScrollToBottom;
-end;
-
 procedure TLogViewPanel.ScrollThis(const aDeltaY: integer);
 begin
   fScrollTop := ScrollTop + aDeltaY;
@@ -233,8 +224,6 @@ var
   scrollDPA: boolean; // scroll destination position approached
 begin
   LockPointer(LogMessages); // LOCK
-  if NewMessageArrived then
-    NewMessageUpdate;
   scrollDPA :=
     ApproachSingle(
       fScrollTop,
@@ -245,9 +234,7 @@ begin
   if not scrollDPA then
     WriteLN(FormatFloat('0.0', ScrollTop) + ' -> ' + FormatFloat('0.0', DesiredScrollTop));
   }
-  invalidationRequired := not scrollDPA or NewMessageArrived;
-  if NewMessageArrived then
-    fNewMessageArrived := false;
+  invalidationRequired := not scrollDPA;
   UnlockPointer(LogMessages); //UNLOCK
   if invalidationRequired then
     Invalidate;

@@ -47,6 +47,7 @@ contains
   VCLLogPanelItem in 'VCLLogPanelItem.pas',
   CustomLogTextFormat in 'CustomLogTextFormat.pas',
   PlainLogTextFormat in 'PlainLogTextFormat.pas',
-  FileLogWriter in 'FileLogWriter.pas';
+  FileLogWriter in 'FileLogWriter.pas',
+  LogMemoryStorage in 'LogMemoryStorage.pas';
 
 end.
